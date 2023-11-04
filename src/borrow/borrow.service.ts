@@ -2,7 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBorrowDto } from './dto/create-borrow.dto';
 import { Principal } from 'src/auth/dto/auth.dto';
 import { PrismaService } from 'src/infrastructure';
-import { mapBorrowToDto, mapBorrowsToDto } from './borrow.mapper';
+import {
+  mapBorrowToDto,
+  mapBorrowToExport,
+  mapBorrowsToDto,
+} from './borrow.mapper';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class BorrowService {
@@ -56,6 +61,41 @@ export class BorrowService {
         borrowedBy: { select: { id: true, name: true, email: true } },
       },
     });
+  }
+
+  async findLastMonthOverdue() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    let previousMonth = currentMonth - 1;
+    let previousYear = currentYear;
+    if (previousMonth < 0) {
+      previousMonth = 11;
+      previousYear -= 1;
+    }
+    const previousMonthDate = new Date(previousYear, previousMonth, 1);
+
+    const data = await this.prisma.borrow
+      .findMany({
+        where: {
+          returnedAt: null,
+          dueDate: { lte: now, gte: previousMonthDate },
+        },
+        select: {
+          dueDate: true,
+          id: true,
+          book: { select: { id: true, title: true } },
+          borrowedBy: { select: { id: true, name: true, email: true } },
+        },
+      })
+      .then((x) => x.map(mapBorrowToExport));
+
+    var workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(data, {
+      header: [],
+    });
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet 1');
+    return await XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   }
 
   async return(id: string, principal: Principal) {
