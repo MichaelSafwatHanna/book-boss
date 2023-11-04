@@ -46,6 +46,18 @@ export class BorrowService {
       .then(mapBorrowsToDto);
   }
 
+  async findAllBorrowers() {
+    return await this.prisma.borrow.findMany({
+      where: { returnedAt: null },
+      select: {
+        dueDate: true,
+        id: true,
+        book: { select: { id: true, title: true } },
+        borrowedBy: { select: { id: true, name: true, email: true } },
+      },
+    });
+  }
+
   async return(id: string, principal: Principal) {
     await this.prisma.borrow.update({
       data: {

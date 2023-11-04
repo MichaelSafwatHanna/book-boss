@@ -32,6 +32,12 @@ export class BorrowController {
     return this.borrowService.findAll(principal);
   }
 
+  @Get('report/borrows/checked-out')
+  @UseGuards(AuthGuard)
+  findAllBorrowers() {
+    return this.borrowService.findAllBorrowers();
+  }
+
   @Put('borrows/:id/return')
   @UseGuards(AuthGuard)
   return(@Param('id') id: string, @Req() { user: principal }: Request) {
