@@ -1,73 +1,212 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Book Boss
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Getting started
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+1. Prerequisites to be installed on host machine
+   1. docker
+2. Run the command
 
-## Description
+     > docker compose up
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+3. Wait a bit (around 2-3 minutes) until the containers are up and running
+4. Go to [http://localhost:3000](http://localhost:3000)
+5. Hit /auth/signup endpoint with name, email and password
 
-## Installation
+    ```sh
+      curl -X POST \
+        -H "Content-Type: application/json" \
+        -d '{
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "password": "password123"
+        }' \
+        http://localhost:3000/auth/signup
+    ```
 
-```bash
-$ yarn install
-```
+6. Copy the access token and use it as a Bearer token in the upcoming requests.
 
-## Running the app
+## System design
 
-```bash
-# development
-$ yarn run start
+### Endpoints
 
-# watch mode
-$ yarn run start:dev
+1. Books
 
-# production mode
-$ yarn run start:prod
-```
+    1. POST /books - Create a new book.
 
-## Test
+         ```sh
+            curl -X POST \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "title": "The Lord of the Rings",
+                "ISBN": "978-0395486409",
+                "location": "Shelf A1",
+                "quantity": 1,
+                "authorId": "UUID"
+              }' \
+              http://localhost:3000/books         
+         ```
 
-```bash
-# unit tests
-$ yarn run test
+    2. GET /books - Get a list of all books. (Can search by query params [title, ISBN, author name])
 
-# e2e tests
-$ yarn run test:e2e
+       ```sh
+         curl -X GET \
+         -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+         -H "Content-Type: application/json" \
+         http://localhost:3000/books/search?title=The+Lord+of+the+Rings
+       ```
 
-# test coverage
-$ yarn run test:cov
-```
+    3. GET /books/:id - Get a specific book by ID.
 
-## Support
+         ```sh
+            curl -X GET \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              http://localhost:3000/books/UUID
+         ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    4. PUT /books/:id - Update a specific book by ID.
 
-## Stay in touch
+         ```sh
+            curl -X PUT \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "title": "The Lord of the Rings: The Fellowship of the Ring"
+              }' \
+              http://localhost:3000/books/UUID
+         ```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    5. DELETE /books/:id - Delete a specific book by ID.
 
-## License
+         ```sh
+            curl -X DELETE \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              http://localhost:3000/books/UUID
+         ```
 
-Nest is [MIT licensed](LICENSE).
+2. Authors
+   1. POST /authors - Create a new author.
+
+      ```sh
+         curl -X POST \
+            -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "J.R.R. Tolkien"
+            }' \
+            http://localhost:3000/authors
+      ```
+
+   2. GET /authors - Get a list of all authors.
+
+      ```sh
+         curl -X GET \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/authors
+      ```
+
+   3. GET /authors/:id - Get a specific author by ID.
+
+      ```sh
+         curl -X GET \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/authors/UUID
+      ```
+
+   4. PUT /authors/:id - Update a specific author by ID.
+
+      ```sh
+      curl -X PUT \
+         -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+         -H "Content-Type: application/json" \
+         -d '{
+           "name": "J.R.R. Tolkien (updated)"
+         }' \
+         http://localhost:3000/authors/UUID
+      ```
+
+   5. DELETE /authors/:id - Delete a specific author by ID.
+
+      ```sh
+         curl -X DELETE \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/authors/UUID
+      ```
+
+3. Authentication
+    1. POST /auth/login - Login and obtain a JWT token.
+
+         ```sh
+            curl -X POST \
+               -H "Content-Type: application/json" \
+               -d '{
+                "email": "john.doe@example.com",
+                "password": "password123"
+               }' \
+               http://localhost:3000/auth/login
+         ```
+
+    2. POST /auth/signup - Create a new user account and return an access token.
+
+       ```sh
+         curl -X POST \
+           -H "Content-Type: application/json" \
+           -d '{
+             "name": "John Doe",
+             "email": "john.doe@example.com",
+             "password": "password123"
+           }' \
+           http://localhost:3000/auth/signup
+       ```
+
+4. Borrowing
+
+   1. POST /books/:bookId/borrow - Borrow a book.
+
+         ```sh
+            curl -X POST \
+              -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "bookId": "1",
+                "dueDate": "2023-11-14T00:00:00.000Z"
+              }' \
+              http://localhost:3000/books/1/borrow
+         ```
+
+   2. GET /borrows - Get a list of all borrows of the logged in user.
+
+      ```sh
+         curl -X GET \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/borrows
+      ```
+
+   3. GET /admin/borrows/checked-out - Get a list of all checked-out books.
+
+      ```sh
+         curl -X GET \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/admin/borrows/checked-out
+      ```
+
+   4. PUT /borrows/:id/return - Return a book.
+
+      ```sh
+         curl -X PUT \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/borrows/1/return
+      ```
+
+   5. GET /admin/borrows/overdue/export - Downloads an excel of all overdue books.
+
+      ```sh
+         curl -X GET \
+           -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+           http://localhost:3000/admin/borrows/overdue/export
+      ```
+
+## If I had more time I'd have done
+
+1. Add unit tests.
+2. Add authorization to admin endpoints, currently some administrative endpoints are accessed by anyone with an access token.
