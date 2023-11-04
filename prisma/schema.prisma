@@ -13,18 +13,22 @@ datasource db {
 model Book {
   id       String   @id @default(uuid())
   title    String
-  ISBN     Int
+  ISBN     String
   location String
   quantity Int
   author   Author   @relation(fields: [authorId], references: [id])
   authorId String
   borrows  Borrow[]
+
+  @@index([ISBN, title])
 }
 
 model Author {
   id    String @id @default(uuid())
   name  String
   books Book[]
+
+  @@index([name])
 }
 
 model User {

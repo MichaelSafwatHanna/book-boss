@@ -13,6 +13,8 @@ import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { AuthGuard, Request } from '../auth/auth.guard';
+import { BooksSearchQuery } from './books.decorator';
+import { BookSearchModel } from './dto/book-search.dto';
 
 @Controller('books')
 export class BooksController {
@@ -26,8 +28,9 @@ export class BooksController {
 
   @Get()
   @UseGuards(AuthGuard)
-  findAll() {
-    return this.booksService.findAll();
+  findAll(@BooksSearchQuery() model: BookSearchModel) {
+    console.log(model);
+    return this.booksService.findAll(model);
   }
 
   @Get(':id')

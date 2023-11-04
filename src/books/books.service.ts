@@ -4,6 +4,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { PrismaService } from 'src/infrastructure';
 import { BookWithAuthorDto } from './dto/book.dto';
 import { mapBookToDto, mapBooksToAvailabilityDto } from './books.mapper';
+import { BookSearchModel } from './dto/book-search.dto';
 
 @Injectable()
 export class BooksService {
@@ -20,12 +21,19 @@ export class BooksService {
       .then(mapBookToDto);
   }
 
-  async findAll() {
+  async findAll(model: BookSearchModel) {
     return await this.prisma.book
       .findMany({
         include: {
           author: true,
           borrows: { where: { returnedAt: null } },
+        },
+        where: {
+          AND: [
+            { ISBN: { contains: model.ISBN } },
+            { author: { name: { contains: model.authorName } } },
+            { title: { contains: model.title } },
+          ],
         },
       })
       .then(mapBooksToAvailabilityDto);
