@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:push": "dotenv -e .env.development -- prisma db push",
-    "db:push:docker": "dotenv -e .env.docker -- prisma push",
+    "db:push:docker": "dotenv -e .env.docker -- prisma db push",
     "db:gen": "dotenv -e .env.development -- prisma generate deploy",
     "db:gen:docker": "dotenv -e .env.docker -- prisma generate deploy"
   },

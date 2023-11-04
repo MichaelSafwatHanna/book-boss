@@ -1,13 +1,15 @@
 # Book Boss
 
+## Objective
+
+Design and implement a simple library management system to manage books and borrowers.
+
 ## Getting started
 
 1. Prerequisites to be installed on host machine
    1. docker
 2. Run the command
-
-     > docker compose up
-
+   > docker compose up
 3. Wait a bit (around 2-3 minutes) until the containers are up and running
 4. Go to [http://localhost:3000](http://localhost:3000)
 5. Hit /auth/signup endpoint with name, email and password

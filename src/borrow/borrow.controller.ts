@@ -36,7 +36,7 @@ export class BorrowController {
     return this.borrowService.findAll(principal);
   }
 
-  @Get('report/borrows/checked-out')
+  @Get('admin/borrows/checked-out')
   @UseGuards(AuthGuard)
   findAllBorrowers() {
     return this.borrowService.findAllBorrowers();

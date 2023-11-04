@@ -11,3 +11,16 @@ services:
     environment:
       - MYSQL_DATABASE=book-boss
       - MYSQL_ROOT_PASSWORD=password
+
+  api:
+    build: .
+    container_name: api
+    hostname: api
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - mysqldb
+    entrypoint: ./entrypoint.sh
