@@ -18,13 +18,13 @@ model Book {
   quantity Int
   author   Author   @relation(fields: [authorId], references: [id])
   authorId String
-  Borrow   Borrow[]
+  borrows  Borrow[]
 }
 
 model Author {
-  id   String @id @default(uuid())
-  name String
-  Book Book[]
+  id    String @id @default(uuid())
+  name  String
+  books Book[]
 }
 
 model User {
@@ -34,7 +34,7 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Borrow    Borrow[]
+  borrows   Borrow[]
 }
 
 model Borrow {

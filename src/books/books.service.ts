@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { PrismaService } from 'src/infrastructure';
-import { BookDto } from './dto/book.dto';
-import { mapBookToDto, mapBooksToDto } from './books.mapper';
+import { BookWithAuthorDto } from './dto/book.dto';
+import { mapBookToDto, mapBooksToAvailabilityDto } from './books.mapper';
 
 @Injectable()
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createBookDto: CreateBookDto): Promise<BookDto> {
+  async create(createBookDto: CreateBookDto): Promise<BookWithAuthorDto> {
     return await this.prisma.book
       .create({
         data: { ...createBookDto },
@@ -25,9 +25,10 @@ export class BooksService {
       .findMany({
         include: {
           author: true,
+          borrows: { where: { returnedAt: null } },
         },
       })
-      .then(mapBooksToDto);
+      .then(mapBooksToAvailabilityDto);
   }
 
   async findOne(id: string) {

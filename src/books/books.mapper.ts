@@ -1,7 +1,9 @@
-import { Author, Book } from '@prisma/client';
-import { BookDto } from './dto/book.dto';
+import { Author, Book, Borrow } from '@prisma/client';
+import { BookAvailabilityDto, BookWithAuthorDto } from './dto/book.dto';
 
-export const mapBookToDto = (entity: Book & { author: Author }): BookDto => {
+export const mapBookToDto = (
+  entity: Book & { author: Author },
+): BookWithAuthorDto => {
   return {
     id: entity.id,
     ISBN: entity.ISBN,
@@ -12,8 +14,11 @@ export const mapBookToDto = (entity: Book & { author: Author }): BookDto => {
   };
 };
 
-export const mapBooksToDto = (
-  list: (Book & { author: Author })[],
-): BookDto[] => {
-  return list.map(mapBookToDto);
+export const mapBooksToAvailabilityDto = (
+  list: (Book & { author: Author; borrows: Borrow[] })[],
+): BookAvailabilityDto[] => {
+  return list.map((b) => ({
+    ...mapBookToDto(b),
+    availableQuantity: b.quantity - b.borrows.length,
+  }));
 };
